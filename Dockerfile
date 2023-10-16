@@ -1,20 +1,11 @@
-# ----------------------------------
-# Pterodactyl Core Dockerfile
-# Environment: Java
-# Minimum Panel Version: 0.6.0
-# ----------------------------------
-FROM openjdk:8-jdk-alpine
-
-MAINTAINER Pterodactyl Software, <support@pterodactyl.io>
-
-RUN apk add --no-cache --update curl ca-certificates openssl git tar bash sqlite fontconfig \
-    && adduser --disabled-password --home /home/container container
-
-USER container
-ENV  USER=container HOME=/home/container
-
-WORKDIR /home/container
-
-COPY ./entrypoint.sh /entrypoint.sh
-
-CMD ["/bin/bash", "/entrypoint.sh
+# Use the base image
+FROM fredblgr/ubuntu-novnc:20.04
+ 
+# Expose the port on which NoVNC runs (80 inside the container)
+EXPOSE 80
+ 
+# Set the environment variable for screen resolution
+ENV RESOLUTION 1600x761
+ 
+# Start the command to run NoVNC
+CMD ["supervisord", "-c", "/etc/supervisor/supervisord.conf"]
