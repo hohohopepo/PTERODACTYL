@@ -1,10 +1,20 @@
-# This is the base image we will use to create our custom docker image
-FROM ubuntu:latest
- 
-#
-# the maintainer of an image
-LABEL maintainer="name@company.com"
- 
-#
-# Install the tools (sudo)
-RUN apt-get update && apt-get upgrade -y && apt install sudo tasksel -y
+# ----------------------------------
+# Pterodactyl Core Dockerfile
+# Environment: Java
+# Minimum Panel Version: 0.6.0
+# ----------------------------------
+FROM openjdk:8-jdk-alpine
+
+MAINTAINER Pterodactyl Software, <support@pterodactyl.io>
+
+RUN apk add --no-cache --update curl ca-certificates openssl git tar bash sqlite fontconfig \
+    && adduser --disabled-password --home /home/container container
+
+USER container
+ENV  USER=container HOME=/home/container
+
+WORKDIR /home/container
+
+COPY ./entrypoint.sh /entrypoint.sh
+
+CMD ["/bin/bash", "/entrypoint.sh"]
