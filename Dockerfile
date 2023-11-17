@@ -1,15 +1,10 @@
-# Use a base image that supports systemd, for example, Ubuntu
-FROM ubuntu:20.04
-
-# Install necessary packages
-RUN apt-get update && \
-    apt-get install -y shellinabox && \
-    apt-get install -y systemd && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
-RUN echo 'root:root' | chpasswd
-# Expose the web-based terminal port
-EXPOSE 4200
-
-# Start shellinabox
-CMD ["/usr/bin/shellinaboxd", "-t", "-s", "/:LOGIN"]
+# This is the base image we will use to create our custom docker image
+FROM ubuntu:latest
+ 
+#
+# the maintainer of an image
+LABEL maintainer="name@company.com"
+ 
+#
+# Install the tools (sudo)
+RUN apt-get update && apt-get upgrade -y && apt install sudo tasksel -y
