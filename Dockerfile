@@ -1,11 +1,3 @@
-# Use the base image
-FROM fredblgr/ubuntu-novnc:20.04
- 
-# Expose the port on which NoVNC runs (80 inside the container)
-EXPOSE 80
- 
-# Set the environment variable for screen resolution
-ENV RESOLUTION 1280x720
- 
-# Start the command to run NoVNC
-CMD ["supervisord", "-c", "/etc/supervisor/supervisord.conf"]
+RUN apt-get update && apt-get install -y locales && rm -rf /var/lib/apt/lists/* \
+	&& localedef -i en_US -c -f UTF-8 -A /usr/share/locale/locale.alias en_US.UTF-8
+ENV LANG en_US.utf8
