@@ -1,46 +1,35 @@
-# Download base image ubuntu 22.04
-FROM ubuntu:22.04
+#
+# Copyright (c) 2021 Matthew Penner
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+#
 
-# LABEL about the custom image
-LABEL maintainer="admin@howtoforge.com"
-LABEL version="0.1"
-LABEL description="This is a custom Docker Image for PHP-FPM and Nginx."
+FROM        --platform=$TARGETOS/$TARGETARCH debian:bullseye-slim
 
-# Disable Prompt During Packages Installation
-ARG DEBIAN_FRONTEND=noninteractive
+LABEL       author="Matthew Penner" maintainer="matthew@pterodactyl.io"
 
-# Update Ubuntu Software repository
-RUN apt update
-RUN apt upgrade -y
+LABEL       org.opencontainers.image.source="https://github.com/pterodactyl/yolks"
+LABEL       org.opencontainers.image.licenses=MIT
 
-# Install nginx, php-fpm and supervisord from ubuntu repository
-RUN apt install -y nginx php-fpm supervisor
-RUN rm -rf /var/lib/apt/lists/*
-RUN apt clean
-    
-# Define the ENV variable
-ENV nginx_vhost /etc/nginx/sites-available/default
-ENV php_conf /etc/php/8.1/fpm/php.ini
-ENV nginx_conf /etc/nginx/nginx.conf
-ENV supervisor_conf /etc/supervisor/supervisord.conf
+ENV         DEBIAN_FRONTEND=noninteractive
 
-# Enable PHP-fpm on nginx virtualhost configuration
-COPY default ${nginx_vhost}
-RUN sed -i -e 's/;cgi.fix_pathinfo=1/cgi.fix_pathinfo=0/g' ${php_conf} && echo "\ndaemon off;" >> ${nginx_conf}
-    
-# Copy supervisor configuration
-COPY supervisord.conf ${supervisor_conf}
-
-RUN mkdir -p /run/php
-RUN chown -R www-data:www-data /var/www/html
-RUN chown -R www-data:www-data /run/php
-    
-# Volume configuration
-VOLUME ["/etc/nginx/sites-enabled", "/etc/nginx/certs", "/etc/nginx/conf.d", "/var/log/nginx", "/var/www/html"]
-
-# Copy start.sh script and define default command for the container
-COPY start.sh /start.sh
-CMD ["./start.sh"]
-
-# Expose Port for the Application 
-EXPOSE 80 443
+RUN         dpkg --add-architecture i386 \
+				&& apt update \
+				&& apt upgrade -y \
+				&& apt -y --no-install-recommends install ca-certificates curl lib32gcc-s1 libsdl2-2.0-0:i386 git wget
